@@ -47,7 +47,7 @@ the database, and failures need to be visible rather than silent.
 ---
 
 ## 2. AI enquiry classifier
-![AI classifier](Ai-classifier.png)
+![AI classifier](AI-classifier.png)
 **Problem:** Incoming enquiries arrive as free text and need routing to
 the right team without someone reading each one.
 
