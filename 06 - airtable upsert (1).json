@@ -1,0 +1,511 @@
+{
+  "name": "06 - airtable upsert",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "contact form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "amount",
+              "fieldType": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -864,
+        208
+      ],
+      "id": "bd3cecd0-6afe-4ec4-91f7-483f10b9a93c",
+      "name": "On form submission",
+      "webhookId": "c0868bdb-88dd-45a6-ac61-d77aa42d658f"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appWsxLsjyGsQK9Bz",
+          "mode": "list",
+          "cachedResultName": "n8n contacts",
+          "cachedResultUrl": "https://airtable.com/appWsxLsjyGsQK9Bz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblzmOOJm49kitZH9",
+          "mode": "list",
+          "cachedResultName": "contacts",
+          "cachedResultUrl": "https://airtable.com/appWsxLsjyGsQK9Bz/tblzmOOJm49kitZH9"
+        },
+        "filterByFormula": "={Email}=\"{{ $json.email }}\"",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        128
+      ],
+      "id": "e44391ba-84e8-4de1-b114-3c1c582b9af0",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "jgvtouLCJDPmNHk9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "068efeea-d9fd-4df9-96d3-44309aa56eae",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        32,
+        208
+      ],
+      "id": "22422b0d-0f30-48a6-9cfd-dc84f2801d98",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appWsxLsjyGsQK9Bz",
+          "mode": "list",
+          "cachedResultName": "n8n contacts",
+          "cachedResultUrl": "https://airtable.com/appWsxLsjyGsQK9Bz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblzmOOJm49kitZH9",
+          "mode": "list",
+          "cachedResultName": "cdec",
+          "cachedResultUrl": "https://airtable.com/appWsxLsjyGsQK9Bz/tblzmOOJm49kitZH9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": null,
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        304
+      ],
+      "id": "68b30a5f-d873-4151-ad73-f14c2bbef769",
+      "name": "Create a record",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "jgvtouLCJDPmNHk9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appWsxLsjyGsQK9Bz",
+          "mode": "list",
+          "cachedResultName": "n8n contacts",
+          "cachedResultUrl": "https://airtable.com/appWsxLsjyGsQK9Bz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblzmOOJm49kitZH9",
+          "mode": "list",
+          "cachedResultName": "contacts",
+          "cachedResultUrl": "https://airtable.com/appWsxLsjyGsQK9Bz/tblzmOOJm49kitZH9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Amount": "={{ $('On form submission').item.json.amount }}",
+            "Submissions": "={{ $('Search records').item.json.fields.Submissions + 1 }}",
+            "id": "={{ $('Search records').item.json.id }}",
+            "Name": "={{ $('On form submission').item.json.Name }}",
+            "Email": "={{ $('Search records').item.json.fields.Email }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Submissions",
+              "displayName": "Submissions",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        64
+      ],
+      "id": "4c17bc46-e6f0-46a0-8579-27c69f17156f",
+      "name": "Update record",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "jgvtouLCJDPmNHk9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "43f435ea-5fed-45be-81d8-81d221a21120",
+              "leftValue": "={{ $json.amount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -640,
+        208
+      ],
+      "id": "195ad6b4-374e-4fd0-9814-97263fb66de6",
+      "name": "Validate input"
+    },
+    {
+      "parameters": {
+        "sendTo": "unnn321@gmail.com",
+        "subject": "Invalid submission rejected",
+        "message": "=A submission was rejected by validation.    Name: {{ $('On form submission').item.json.Name }}   Email: {{ $('On form submission').item.json.email }}   Amount: {{ $('On form submission').item.json.amount }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        368
+      ],
+      "id": "37b7ffcb-68c3-458b-a903-8304ce8a8ccd",
+      "name": "Alert: invalid submission.",
+      "webhookId": "07da11f1-79e5-41b3-9b4a-5a4c4a3a538d",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "o9yP5K15O5o2W1h6",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appWsxLsjyGsQK9Bz",
+          "mode": "list",
+          "cachedResultName": "n8n contacts",
+          "cachedResultUrl": "https://airtable.com/appWsxLsjyGsQK9Bz"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbljfb0Si32PgxPtM",
+          "mode": "list",
+          "cachedResultName": "rejections",
+          "cachedResultUrl": "https://airtable.com/appWsxLsjyGsQK9Bz/tbljfb0Si32PgxPtM"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('On form submission').item.json.Name }}",
+            "Email": "={{ $('On form submission').item.json.email }}",
+            "Amount": "={{ $('On form submission').item.json.amount }}",
+            "Reason for Rejection": "Negative amount",
+            "Timestamp": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Reason for Rejection",
+              "displayName": "Reason for Rejection",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -432,
+        288
+      ],
+      "id": "32112a9c-298e-4810-b4e0-f91b76ac0170",
+      "name": "Log rejection",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "jgvtouLCJDPmNHk9",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Validate input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate input": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log rejection": {
+      "main": [
+        [
+          {
+            "node": "Alert: invalid submission.",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "yQu5ce6apUQnjYCJ",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "3dfead75-1789-40c9-9a61-9fe523cdf573",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e842ebdcc155188c5c43d2b9c3ad9a485625824d8f5f18c1df061338b135afdd"
+  },
+  "nodeGroups": [],
+  "id": "KnX4wNgbAWDHm1mE",
+  "tags": []
+}

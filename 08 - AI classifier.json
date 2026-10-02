@@ -1,0 +1,216 @@
+{
+  "name": "08 - AI classifier.",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "contact",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "Message",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -544,
+        -32
+      ],
+      "id": "9d574945-9642-4550-9684-d141adc17e44",
+      "name": "On form submission",
+      "webhookId": "8e82ec8b-fbbf-40c1-a3c8-6a2c54818ac1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.5-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a message classifier. Read the enquiry below and respond with ONLY a JSON object, no markdown, no backticks, no explanation.\n\nFormat:\n{\"category\": \"sales\" | \"support\" | \"spam\", \"urgency\": \"high\" | \"medium\" | \"low\", \"summary\": \"one short sentence\"}\n\nEnquiry: {{ $json.Message }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        -32
+      ],
+      "id": "0baeb904-4567-403d-bde0-fec58761976d",
+      "name": "Message a model",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "QsC4GmALvO9VPgZN",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.content.parts[0].text;\n\nconst cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = { category: 'unknown', urgency: 'unknown', summary: 'Could not parse AI response', raw: raw };\n}\n\nreturn [{ json: parsed }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        -32
+      ],
+      "id": "df75ca21-d0fc-4499-ab9f-d901c369ca71",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "sales",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "61181c7a-7dda-489c-8879-99a203dc361e"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9c5e696a-15a0-4f41-837d-5d758b96e5f5",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "support",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5afc7323-e402-4824-9ab6-3b410b1d5a1b",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "spam",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        272,
+        -32
+      ],
+      "id": "84496a2d-1b7c-4e01-94cb-20d6808cc1f9",
+      "name": "Switch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "99735b80-5566-4697-ae0a-3b4a85c2bd4b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e842ebdcc155188c5c43d2b9c3ad9a485625824d8f5f18c1df061338b135afdd"
+  },
+  "nodeGroups": [],
+  "id": "L5LJ9j2YL4ggvvgC",
+  "tags": []
+}
