@@ -1,0 +1,409 @@
+{
+  "name": "Order Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-order",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -432,
+        -32
+      ],
+      "id": "15de8f58-e47c-4e0f-8aa3-e3b3c907a182",
+      "name": "Webhook",
+      "webhookId": "0c5cb369-15b9-4a27-8eb8-d9817b7f5523"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa03ba06-c8ec-43d9-9ae3-260a83ccda8e",
+              "name": "order_id",
+              "value": "={{ 'ORD-' + $now.toFormat('yyyyMMddHHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "2423389b-028b-48b0-976d-d4f68c0f3994",
+              "name": "received_at",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+              "type": "string"
+            },
+            {
+              "id": "c315afd3-bf9f-44c2-a154-98e7f0f21f5e",
+              "name": "customer_name",
+              "value": "={{ $json.body.customer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "dff8f18c-b25c-4e8b-859e-dcf0f548fe74",
+              "name": "email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "43608dfa-aa2b-43d0-a8f6-e7087b45d4fc",
+              "name": "phone",
+              "value": "={{ $json.body.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "bf759043-0a68-4773-9fba-46c6b99a913e",
+              "name": "product",
+              "value": "={{ $json.body.product }}",
+              "type": "string"
+            },
+            {
+              "id": "ca7bd8eb-22b4-4744-9bc2-e1f066d59776",
+              "name": "quantity",
+              "value": "={{ $json.body.quantity }}",
+              "type": "number"
+            },
+            {
+              "id": "2db8c085-6c18-4b11-90f9-44e56dd015d2",
+              "name": "total",
+              "value": "={{ $json.body.quantity * $json.body.price }}",
+              "type": "number"
+            },
+            {
+              "id": "0172d62b-166b-4ece-96ca-b1d7c2cc099a",
+              "name": "status",
+              "value": "new",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -208,
+        -32
+      ],
+      "id": "a6997645-04b0-4b7b-b8b7-38371195ec1c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5f684b30-7e83-40f0-9d15-ab4495664e95",
+              "leftValue": "={{ $json.customer_name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "652a7b88-ac31-4376-b98a-60a6b591ecbe",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "0f4f66bf-a81a-437e-b8bd-e0709c341bf4",
+              "leftValue": "={{ $json.quantity }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        -32
+      ],
+      "id": "dc9a682b-a464-41f8-93f6-284a95588f5b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1jHeDW0Z9G7jC1ldkZgKGNOLJ8syUn-fhJshv1EE9My0",
+          "mode": "list",
+          "cachedResultName": "order",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jHeDW0Z9G7jC1ldkZgKGNOLJ8syUn-fhJshv1EE9My0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jHeDW0Z9G7jC1ldkZgKGNOLJ8syUn-fhJshv1EE9My0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "received_at",
+              "displayName": "received_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_name",
+              "displayName": "customer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product",
+              "displayName": "product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quantity",
+              "displayName": "quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total",
+              "displayName": "total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        240,
+        -128
+      ],
+      "id": "5597be41-8b69-4603-9daa-593e81a68115",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VESTvAwna9kaP881",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "unnn321@gmail.com",
+        "subject": "=New order {{ $('Edit Fields').item.json.order_id }} from {{ $('Edit Fields').item.json.customer_name }}",
+        "emailType": "text",
+        "message": "=ew order received!\n\n     Order ID: {{ $('Edit Fields').item.json.order_id }}\n     Customer: {{ $('Edit Fields').item.json.customer_name }}\n     Phone: {{ $('Edit Fields').item.json.phone }}\n     Email: {{ $('Edit Fields').item.json.email }}\n     Product: {{ $('Edit Fields').item.json.product }} x {{ $('Edit Fields').item.json.quantity }}\n     Total: ₹{{ $('Edit Fields').item.json.total }}\n\n     Saved to the Orders sheet.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -128
+      ],
+      "id": "e18c2aed-1e31-4960-877a-1046187a8cab",
+      "name": "Send a message",
+      "webhookId": "a7acc131-9625-4d67-9e97-a52e73ee9bb2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jom6jViS5L3LfhtJ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": " {\"success\": false, \"message\": \"Order rejected: name, valid email and quantity above 0 are required\"}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        240,
+        64
+      ],
+      "id": "4b36c924-d118-4d0a-995c-76347d32f3b0",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "  {\"success\": true, \"message\": \"Order received\", \"order_id\": \"{{ $('Edit Fields').item.json.order_id }}\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        688,
+        -128
+      ],
+      "id": "36bde7b6-01b1-400f-9682-b30c80135aef",
+      "name": "Respond to Webhook1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "JEPiDPgH2S2Ocrvm",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "eb283356-bfcb-4bb9-be7e-d6a54c88f8e4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e842ebdcc155188c5c43d2b9c3ad9a485625824d8f5f18c1df061338b135afdd"
+  },
+  "nodeGroups": [],
+  "id": "rep6qEuJLxWfrWiB",
+  "tags": []
+}
