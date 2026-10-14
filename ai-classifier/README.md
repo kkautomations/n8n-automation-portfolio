@@ -6,7 +6,7 @@ input validation, error handling and LLM integration.
 ---
 
 ## 1. Contact pipeline with validation and error handling
-![Contact pipeline](contact-pipeline.png)
+![Contact pipeline](contact-pipeline (1).png)
 
 **Problem:** A business collects enquiries through a web form. Contacts
 need to be stored without duplicates, invalid data must be kept out of
@@ -47,7 +47,7 @@ the database, and failures need to be visible rather than silent.
 ---
 
 ## 2. AI enquiry classifier
-![AI classifier](AI-classifier.png)
+![AI classifier](AI-classifier (1).png)
 **Problem:** Incoming enquiries arrive as free text and need routing to
 the right team without someone reading each one.
 
